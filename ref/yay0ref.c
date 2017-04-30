@@ -2,7 +2,7 @@
   Reference implementation for yay0 decoder from 
   https://github.com/pho/WindViewer/wiki/Yaz0-and-Yay0
 
-  Changes after download:
+  Changes after inital version:
   1. r5 used twice with diff types. Change r5 to r51 in block copy case where 
         it's used as void*;
   2. Add declaration for missing variables: 
