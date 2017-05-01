@@ -37,7 +37,7 @@ def processSingleFileImage(fn):
         imagedata = imageFile.read()
 
     (title, dim, w, h, ext) = parseFilename(fn)
-    if(ext[:3] in paletteFormats):
+    if(ext in paletteFormats):
         paldata = imagedata[:512]
         imagedata = imagedata[512:]
     else:
@@ -65,7 +65,10 @@ def processMultiFileImage(fn):
         imagedata = yay0.yay0Dec(imagedata)
         
     (title, dim, w, h, ext) = parseFilename(fn)
-    if(ext[:3] in paletteFormats):
+    # Strip trailing 'y' from extension for backwards compatibility.
+    if 'y' == ext[-1]:
+        ext = ext[:-1]
+    if(ext in paletteFormats):
         pfn = getPaletteFileName(fn)
         print("Opening palette file", pfn)
         with open(pfn, "rb") as palFile:
