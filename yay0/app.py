@@ -40,7 +40,14 @@ class Application(Frame):
         editMenu.add_command(label="Show Text", command=self.show_text)
         mainMenu.add_cascade(label="Edit", menu=editMenu)
     def image_decode(self):
-        self.tmpfilename = frontend.process(self.infilename)
+        self.tmpfilename = ''
+        ext = frontend.parseFilename(self.infilename)[-1]
+        # If file extension ends in y it's pixel data only with a
+        # separate palette file containing palette information.
+        if 'y' == ext[-1]:
+            self.tmpfilename = frontend.processMultiFileImage(self.infilename)
+        else:
+            self.tmpfilename = frontend.processSingleFileImage(self.infilename)
         if(self.tmpfilename == ''):
             self.textLabel['text'] = "Image Decode Failed!"
         else:

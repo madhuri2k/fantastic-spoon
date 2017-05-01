@@ -5,6 +5,9 @@ import yay0
 import N64img
 import tempfile
 
+paletteFormats = [ "ci4", "ci8"]
+#TODO: Extend with other support formats with palette.
+
 def parseFilename(fileName):
     # Ignore any leading directory paths
     fileName = os.path.basename(fileName)
@@ -29,19 +32,40 @@ def getPngFileName(fn):
     (title, dim, w, h, ext) = parseFilename(fn)
     return title+"."+dim+".png"
 
-def process(fn):
-    paletteFormats = [ "ci4", "ci8"]
-
+def processSingleFileImage(fn):
     with open(fn, "rb") as imageFile:
         imagedata = imageFile.read()
 
-	# Check for header and decompress if necessary
+    (title, dim, w, h, ext) = parseFilename(fn)
+    if(ext[:3] in paletteFormats):
+        paldata = imagedata[:512]
+        imagedata = imagedata[512:]
+    else:
+        paldata = None
+
+    # Decompress image data if necessary
+    if(b"Yay0" == imagedata[:0x04]):
+        print ("Yay!!! Found yay0")
+        imagedata = yay0.yay0Dec(imagedata)
+
+    # Convert to PNG
+    fd,tmpFilePath = tempfile.mkstemp()
+    os.close(fd)
+    N64img.img('png', 'out', cmd=ext, img=imagedata, pal=paldata,
+               width=w, height=h, name=tmpFilePath)
+    return tmpFilePath
+
+def processMultiFileImage(fn):
+    with open(fn, "rb") as imageFile:
+        imagedata = imageFile.read()
+
+    # Check for header and decompress if necessary
     if(b"Yay0" == imagedata[:0x04]):
         print ("Yay!!! Found yay0")
         imagedata = yay0.yay0Dec(imagedata)
         
     (title, dim, w, h, ext) = parseFilename(fn)
-    if(ext in paletteFormats):
+    if(ext[:3] in paletteFormats):
         pfn = getPaletteFileName(fn)
         print("Opening palette file", pfn)
         with open(pfn, "rb") as palFile:
@@ -57,8 +81,8 @@ def process(fn):
     return tmpFilePath
 
 def main():
-    infilename = "game_over.256x32.ci8"
-    tmpfilename = process(infilename)
+    infilename = "game_over.256x32.ci8y"
+    tmpfilename = processMultiFileImage(infilename)
     outfilename = getPngFileName(infilename)
     os.rename(tmpfilename, outfilename)
 
