@@ -79,7 +79,7 @@ def yay0Dec(data):
 	return dest
 
 def main():
-	infilename = "game_over.256x32.ci8"
+	infilename = "game_over.256x32.ci8y"
 	outfilename = "game_over.256x32.raw"
 	with open(infilename, "rb") as in_file:
 	    data = in_file.read()
