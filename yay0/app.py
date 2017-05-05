@@ -37,10 +37,10 @@ class Application(Frame):
         fileMenu.add_command(label="Exit", command=self.app_exit)
         mainMenu.add_cascade(label="File", menu=fileMenu)
 
-        editMenu = Menu(mainMenu)
-        editMenu.add_command(label="Show Image", command=self.show_image)
-        editMenu.add_command(label="Show Text", command=self.show_text)
-        mainMenu.add_cascade(label="Edit", menu=editMenu)
+        viewMenu = Menu(mainMenu)
+        viewMenu.add_command(label="Show Image", command=self.show_image)
+        viewMenu.add_command(label="Show Text", command=self.show_text)
+        mainMenu.add_cascade(label="View", menu=viewMenu)
     def image_decode(self):
         self.tmpfilename = ''
         ext = frontend.parseFilename(self.infilename)[-1]
