@@ -1,10 +1,7 @@
 # A frontend for yay0 decoder
 
-import os
-import yay0
-import N64img
-import tempfile
-import logging
+import os, tempfile, logging
+import yay0, N64img
 
 paletteFormats = [ "ci4", "ci8"]
 #TODO: Extend with other support formats with palette.
@@ -72,7 +69,7 @@ def processMultiFileImage(fn):
         ext = ext[:-1]
     if(ext in paletteFormats):
         pfn = getPaletteFileName(fn)
-        log.info("Opening palette file", pfn)
+        log.info(("Opening palette file %s" % pfn))
         with open(pfn, "rb") as palFile:
             paldata = palFile.read()
     else:

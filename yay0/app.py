@@ -5,9 +5,8 @@
 from tkinter import *
 import tkinter.filedialog as filedialog
 from PIL import Image, ImageTk
+import  os, logging
 import frontend
-import os
-import logging
 
 class Application(Frame):
     def __init__(self, master=None):
@@ -57,7 +56,7 @@ class Application(Frame):
             self.textLabel['text'] = "Image Decoded Successfully!"
     def open_file(self):
         self.infilename = filedialog.askopenfilename()
-        self.log.info("Selected:", self.infilename)
+        self.log.info(("Selected: %s" % self.infilename))
         self.textLabel['text'] = "Opened:"+self.infilename
     def save_file(self):
         self.outfilename = frontend.getPngFileName(self.infilename)
@@ -76,6 +75,7 @@ class Application(Frame):
     def show_text(self):
         self.textLabel['text'] = "Image Displayed!"
 
+logging.basicConfig(level=logging.INFO)
 root = Tk()
 root.geometry("400x400")
 app = Application(root)
