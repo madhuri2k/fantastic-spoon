@@ -71,7 +71,7 @@ def yay0Dec(data):
                     dest[o_dest] = dest[o_dest_cp]
                     o_dest += 1
                     o_dest_cp += 1
-            mask = mask << 1
+            mask = (mask << 1) & 0xffffffff
             mask_count -= 1
             # log.debug("With o_mt", o_mt, "o_lt", o_lt, "o_bccm", o_bccm,
             #       "o_dest", o_dest, "mask", mask, "mask_count", mask_count)
