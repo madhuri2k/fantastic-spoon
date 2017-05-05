@@ -7,16 +7,19 @@ import tkinter.filedialog as filedialog
 from PIL import Image, ImageTk
 import frontend
 import os
+import logging
 
 class Application(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.master = master
-        self.prepare()
+        self.appName = "Application Utility"
         self.infilename = ''
         self.tmpfilename = "game_over.256x32.png"
+        self.log = logging.getLogger(self.appName)
+        self.prepare()
     def prepare(self):
-        self.master.title("Application Utility")
+        self.master.title(self.appName)
         self.pack(fill=BOTH, expand=1)
         quitButton = Button(self, text="Decode",
             command=self.image_decode)
@@ -54,7 +57,7 @@ class Application(Frame):
             self.textLabel['text'] = "Image Decoded Successfully!"
     def open_file(self):
         self.infilename = filedialog.askopenfilename()
-        print("Selected:", self.infilename)
+        self.log.info("Selected:", self.infilename)
         self.textLabel['text'] = "Opened:"+self.infilename
     def save_file(self):
         self.outfilename = frontend.getPngFileName(self.infilename)
@@ -74,6 +77,6 @@ class Application(Frame):
         self.textLabel['text'] = "Image Displayed!"
 
 root = Tk()
-root.geometry("400x300")
+root.geometry("400x400")
 app = Application(root)
 root.mainloop()

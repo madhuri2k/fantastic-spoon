@@ -4,9 +4,11 @@ import os
 import yay0
 import N64img
 import tempfile
+import logging
 
 paletteFormats = [ "ci4", "ci8"]
 #TODO: Extend with other support formats with palette.
+log = logging.getLogger("frontend")
 
 def parseFilename(fileName):
     # Ignore any leading directory paths
@@ -45,7 +47,7 @@ def processSingleFileImage(fn):
 
     # Decompress image data if necessary
     if(b"Yay0" == imagedata[:0x04]):
-        print ("Yay!!! Found yay0")
+        log.info ("Yay!!! Found yay0")
         imagedata = yay0.yay0Dec(imagedata)
 
     # Convert to PNG
@@ -61,16 +63,16 @@ def processMultiFileImage(fn):
 
     # Check for header and decompress if necessary
     if(b"Yay0" == imagedata[:0x04]):
-        print ("Yay!!! Found yay0")
+        log.info ("Yay!!! Found yay0")
         imagedata = yay0.yay0Dec(imagedata)
-        
+
     (title, dim, w, h, ext) = parseFilename(fn)
     # Strip trailing 'y' from extension for backwards compatibility.
     if 'y' == ext[-1]:
         ext = ext[:-1]
     if(ext in paletteFormats):
         pfn = getPaletteFileName(fn)
-        print("Opening palette file", pfn)
+        log.info("Opening palette file", pfn)
         with open(pfn, "rb") as palFile:
             paldata = palFile.read()
     else:
