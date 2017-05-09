@@ -4,6 +4,7 @@ import os, tempfile, logging
 import yay0, N64img
 
 paletteFormats = [ "ci4", "ci8"]
+paletteSizes = {"ci8":512, "ci4":32}
 #TODO: Extend with other support formats with palette.
 log = logging.getLogger("frontend")
 
@@ -37,8 +38,9 @@ def processSingleFileImage(fn):
 
     (title, dim, w, h, ext) = parseFilename(fn)
     if(ext in paletteFormats):
-        paldata = imagedata[:512]
-        imagedata = imagedata[512:]
+        palSize = paletteSizes.get(ext, 0)
+        paldata = imagedata[:palSize]
+        imagedata = imagedata[palSize:]
     else:
         paldata = None
 
