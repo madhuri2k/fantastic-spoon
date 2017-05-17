@@ -75,8 +75,12 @@ class Application(Frame):
     def show_text(self):
         self.textLabel['text'] = "Image Displayed!"
 
-logging.basicConfig(level=logging.INFO)
-root = Tk()
-root.geometry("400x400")
-app = Application(root)
-root.mainloop()
+def main():
+    logging.basicConfig(level=logging.INFO)
+    root = Tk()
+    root.geometry("400x400")
+    app = Application(root)
+    root.mainloop()
+
+if __name__ == '__main__':
+    main()
