@@ -6,6 +6,14 @@ maxOffsets = [16, 32, 1024]
 maxLengths = {16: 513, 32: 4, 1024: 17}
 log = logging.getLogger("lzyf")
 
+def create_lzyf(data):
+    c = compress(data)
+    out = bytearray(b'LZYF1000')
+    out.extend(len(c).to_bytes(4, byteorder='big'))
+    out.extend(len(data).to_bytes(4, byteorder='big'))
+    out.extend(c)
+    return out
+
 def compress(src):
     src_size = len(src)
     dst_size = 0
@@ -23,8 +31,13 @@ def compress(src):
     while src_pos < src_size:
         pos1, len1 = yay0.checkRunlength(src_pos, src_size, src, maxOffsets[0], maxLengths[maxOffsets[0]])
         pos2, len2 = yay0.checkRunlength(src_pos, src_size, src, maxOffsets[2], maxLengths[maxOffsets[2]])
-        if len1 < 2 and len2 < 2:
-            # No repeat pattern, add to or create copy run
+        if src_pos+1 < src_size:
+            pos3, len3 = yay0.checkRunlength(src_pos+1, src_size, src, maxOffsets[0], maxLengths[maxOffsets[0]])
+            pos4, len4 = yay0.checkRunlength(src_pos+1, src_size, src, maxOffsets[2], maxLengths[maxOffsets[2]])
+        else:
+            pos3, len3, pos4, len4 = (-1, 0, -1, 0)
+        if (len1 < 2 and len2 < 2) or (max(len3, len4) > max(len1, len2)):
+            # No or sub-optimal repeat pattern, add to or create copy run
             buf.append(src[src_pos])
             rl += 1
             src_pos +=1
@@ -73,8 +86,10 @@ def compress(src):
         dst_size += len(buf) + 1
         buf = bytearray()
         rl = 0
+    dst.append(0)
+    dst_size += 1
     log.info("Encoded {} into {} bytes.".format(src_size, dst_size))
-    return (dst_size, src_size, dst)
+    return dst
 
 def analyzeRuns(data):
     for i in range(len(data)):
