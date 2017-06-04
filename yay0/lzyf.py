@@ -1,6 +1,6 @@
 # Compressor for LZYF
 
-import logging, struct
+import yay0, logging, struct
 
 maxOffsets = [16, 32, 1024]
 maxLengths = {16: 513, 32: 4, 1024: 17}
@@ -70,10 +70,13 @@ def compress(src):
         if src_pos+1 < src_size:
             pos3, len3 = checkRunlength(src_pos+1, src, maxOffsets[0], maxLengths[maxOffsets[0]])
             pos4, len4 = checkRunlength(src_pos+1, src, maxOffsets[2], maxLengths[maxOffsets[2]])
+            if src_pos+2 < src_size:
+                pos5, len5 = checkRunlength(src_pos+2, src, maxOffsets[0], maxLengths[maxOffsets[0]])
+                pos6, len6 = checkRunlength(src_pos+2, src, maxOffsets[2], maxLengths[maxOffsets[2]])
         else:
-            pos3, len3, pos4, len4 = (-1, 0, -1, 0)
+            pos3, len3, pos4, len4, pos5, len5, pos6, len6 = (-1, 0, -1, 0, -1, 0, -1, 0)
         # TODO: Try max(len3,len4) > (1+max(len1, len2))
-        if (len1 < 2 and len2 < 2) or (max(len3, len4) > (1+max(len1, len2))):
+        if (max(len1, len2) < 2) or (max(len3, len4, len5-2, len6-2) > (2+max(len1, len2))):
             # No or sub-optimal repeat pattern, add to or create copy run
             buf.append(src[src_pos])
             rl += 1
@@ -96,7 +99,6 @@ def compress(src):
                 dst_size += len(buf) + 1
                 buf = bytearray()
                 rl = 0
-            # TODO: Try len1 > (1+len2)
             if len1 > (1+len2):
                 # encode pos1, len1 using C
                 v = src_pos-pos1-1
