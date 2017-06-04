@@ -23,7 +23,7 @@ def compress(src):
     ctrl_byte = 0
     buf = bytearray()
 
-    log.info("Start Encode")
+    # log.info("Start Encode")
     # Start a copy-run
     buf.append(src[src_pos])
     src_pos += 1
@@ -44,34 +44,30 @@ def compress(src):
             rl += 1
             src_pos +=1
             if rl == 0x1F:
-                # log.info("Copy run of {} ({}) from {} to {} at {} to {}. C=>{}".format(rl, len(buf), src_pos-rl, src_pos, dst_size, dst_size+rl+1), bin(rl))
-                log.info("Copy: C={}, src[{}:{}] to dst[{}:{}]. Check rl {} vs {}, dst {} vs {}".format(
-                    bin(rl), src_pos-rl, src_pos, dst_size+1, dst_size+1+rl, rl, len(buf), dst_size+1+len(buf), len(dst)+1+len(buf)))
+                # log.info("Copy: C={}, src[{}:{}] to dst[{}:{}]. Check rl {} vs {}, dst {} vs {}".format(
+                #     bin(rl), src_pos-rl, src_pos, dst_size+1, dst_size+1+rl, rl, len(buf), dst_size+1+len(buf), len(dst)+1+len(buf)))
                 dst.append(rl)
                 dst.extend(buf)
                 dst_size += len(buf) + 1
                 buf = bytearray()
                 rl = 0
-                # log.info("DST SIZE: {} == {}", dst_size, len(dst))
         else:
             # output existing copy run, if any
             if rl != 0:
-                # log.info("Copy run of {} ({}) from {} to {} at {} to {}. C=>{}".format(rl, len(buf), src_pos-rl, src_pos, dst_size, dst_size+rl+1), bin(rl))
-                log.info("Copy: C={}, src[{}:{}] to dst[{}:{}]. Check rl {} vs {}, dst {} vs {}".format(
-                    bin(rl), src_pos-rl, src_pos, dst_size+1, dst_size+1+rl, rl, len(buf), dst_size+1+len(buf), len(dst)+1+len(buf)))
+                # log.info("Copy: C={}, src[{}:{}] to dst[{}:{}]. Check rl {} vs {}, dst {} vs {}".format(
+                #     bin(rl), src_pos-rl, src_pos, dst_size+1, dst_size+1+rl, rl, len(buf), dst_size+1+len(buf), len(dst)+1+len(buf)))
                 dst.append(rl)
                 dst.extend(buf)
                 dst_size += len(buf) + 1
                 buf = bytearray()
                 rl = 0
-                # log.info("DST SIZE: {} == {}", dst_size, len(dst))
             # TODO: Try len1 > (1+len2)
             if len1 > len2:
                 # encode pos1, len1 using C
                 v = src_pos-pos1-1
                 ctrl_byte = 0x2000 | ((v & 0x0F) << 9) | ((len1-2) & 0x1FF)
-                log.info("0x20: C={}, src[{}:{}] is src[{}:{}]. Check off {} len {}({}) bytes {} dst {} vs {}".format(
-                    bin(ctrl_byte), src_pos, src_pos+len1, pos1, pos1+len1, hex(v), hex(len1), hex(len1-2), ctrl_byte.to_bytes(2, byteorder='big'), dst_size+2, len(dst)+2))
+                # log.info("0x20: C={}, src[{}:{}] is src[{}:{}]. Check off {} len {}({}) bytes {} dst {} vs {}".format(
+                #     bin(ctrl_byte), src_pos, src_pos+len1, pos1, pos1+len1, hex(v), hex(len1), hex(len1-2), ctrl_byte.to_bytes(2, byteorder='big'), dst_size+2, len(dst)+2))
                 dst.extend(ctrl_byte.to_bytes(2, byteorder='big'))
                 dst_size += 2
                 src_pos += len1
@@ -79,8 +75,8 @@ def compress(src):
                 # encode pos2, len2 using A
                 v = src_pos - pos2 - 1
                 ctrl_byte = 0x80 | ((v<<2) & 0x7c) | ((len2-1) & 0x03)
-                log.info("0x80: C={}, src[{}:{}] is src[{}:{}]. Check off {} len {}({}) byte {} dst {} vs {}".format(
-                    bin(ctrl_byte), src_pos, src_pos+len2, pos2, pos2+len2, hex(v), hex(len2), hex(len2-1), hex(ctrl_byte), dst_size+1, len(dst)+1))
+                # log.info("0x80: C={}, src[{}:{}] is src[{}:{}]. Check off {} len {}({}) byte {} dst {} vs {}".format(
+                #     bin(ctrl_byte), src_pos, src_pos+len2, pos2, pos2+len2, hex(v), hex(len2), hex(len2-1), hex(ctrl_byte), dst_size+1, len(dst)+1))
                 dst.append(ctrl_byte)
                 dst_size += 1
                 src_pos += len2
@@ -88,15 +84,14 @@ def compress(src):
                 # encode pos2, len2 using B
                 v = src_pos - pos2 - 1
                 ctrl_byte = 0x4000 | ((v<<4) & 0x3FF0) | ((len2-2) & 0x0F)
-                log.info("0x40: C={}, src[{}:{}] is src[{}:{}]. Check off {} len {}({}) bytes {} dst {} vs {}".format(
-                    bin(ctrl_byte), src_pos, src_pos+len2, pos2, pos2+len2, hex(v), hex(len2), hex(len2-2), ctrl_byte.to_bytes(2, byteorder='big'), dst_size+2, len(dst)+2))
+                # log.info("0x40: C={}, src[{}:{}] is src[{}:{}]. Check off {} len {}({}) bytes {} dst {} vs {}".format(
+                #     bin(ctrl_byte), src_pos, src_pos+len2, pos2, pos2+len2, hex(v), hex(len2), hex(len2-2), ctrl_byte.to_bytes(2, byteorder='big'), dst_size+2, len(dst)+2))
                 dst.extend(ctrl_byte.to_bytes(2, byteorder='big'))
                 dst_size += 2
                 src_pos += len2
     if rl != 0:
-        # log.info("Copy run of {} ({}) from {} to {} at {} to {}. C=>{}".format(rl, len(buf), src_pos-rl, src_pos, dst_size, dst_size+rl+1), bin(rl))
-        log.info("Copy: C={}, src[{}:{}] to dst[{}:{}]. Check rl {} vs {}, dst {} vs {}".format(
-            bin(rl), src_pos-rl, src_pos, dst_size+1, dst_size+1+rl, rl, len(buf), dst_size+1+len(buf), len(dst)+1+len(buf)))
+        # log.info("Copy: C={}, src[{}:{}] to dst[{}:{}]. Check rl {} vs {}, dst {} vs {}".format(
+        #     bin(rl), src_pos-rl, src_pos, dst_size+1, dst_size+1+rl, rl, len(buf), dst_size+1+len(buf), len(dst)+1+len(buf)))
         dst.append(rl)
         dst.extend(buf)
         dst_size += len(buf) + 1
@@ -104,8 +99,8 @@ def compress(src):
         rl = 0
     dst.append(0)
     dst_size += 1
-    log.info("Zero byte at {}({}). src[0:{}]".format(dst_size, len(dst), src_pos))
-    log.info("Encoded {} into {} bytes.".format(src_size, dst_size))
+    # log.info("Zero byte at {}({}). src[0:{}]".format(dst_size, len(dst), src_pos))
+    # log.info("Encoded {} into {} bytes.".format(src_size, dst_size))
     return dst
 
 def analyzeRuns(data):
