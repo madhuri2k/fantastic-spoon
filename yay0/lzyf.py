@@ -9,7 +9,7 @@ log = logging.getLogger("lzyf")
 def create_lzyf(data):
     c = compress(data)
     out = bytearray(b'LZYF1000')
-    out.extend(len(c).to_bytes(4, byteorder='big'))
+    out.extend((16+len(c)).to_bytes(4, byteorder='big'))
     out.extend(len(data).to_bytes(4, byteorder='big'))
     out.extend(c)
     return out

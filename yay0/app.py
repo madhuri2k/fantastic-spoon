@@ -6,7 +6,7 @@ from tkinter import *
 import tkinter.filedialog as filedialog
 from PIL import Image, ImageTk
 import  os, logging
-import frontend
+import frontend, lzyf
 
 class Application(Frame):
     def __init__(self, master=None):
@@ -41,6 +41,11 @@ class Application(Frame):
         viewMenu.add_command(label="Show Image", command=self.show_image)
         viewMenu.add_command(label="Show Text", command=self.show_text)
         mainMenu.add_cascade(label="View", menu=viewMenu)
+
+        toolsMenu = Menu(mainMenu)
+        toolsMenu.add_command(label="Compress Yay0 file...", command=self.compress_yay0)
+        toolsMenu.add_command(label="Compress LZYF file...", command=self.compress_lzyf)
+        mainMenu.add_cascade(label="Tools", menu=toolsMenu)
     def image_decode(self):
         self.tmpfilename = ''
         ext = frontend.parseFilename(self.infilename)[-1]
@@ -74,6 +79,25 @@ class Application(Frame):
         # self.imgLabel.place(x=0, y=100)
     def show_text(self):
         self.textLabel['text'] = "Image Displayed!"
+    def compress_yay0(self):
+        self.textLabel['text'] = "Not Yet Implemented!"
+    def compress_lzyf(self):
+        file_types = [("Binary File","*.bin"),("All Files","*")]
+        f_in = filedialog.askopenfile(master=self, mode="rb",title="Open File",filetypes=file_types)
+        self.textLabel['text'] = "Compressing... please wait!"
+        if f_in:
+            out = lzyf.create_lzyf(f_in.read())
+            file_types = [("LZYF File","*.lzyf"),("Binary File","*.bin"),("All Files","*")]
+            n = file_types[0][1].replace('*', os.path.splitext(f_in.name)[0], 1)
+            print("Initial file {}".format(n))
+            f_out = filedialog.asksaveasfile(mode="wb", initialfile=n, title="Save As...", filetypes=file_types)
+            if f_out != None:
+                f_out.write(out)
+                self.textLabel['text'] = "Compressed {} to {}".format(f_in.name, f_out.name)
+            else:
+                self.textLabel['text'] = "Aborted!"
+        else:
+            self.textLabel['text'] = "Aborted!"
 
 def main():
     logging.basicConfig(level=logging.INFO)
