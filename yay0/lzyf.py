@@ -1,6 +1,6 @@
 # Compressor for LZYF
 
-import yay0, logging, struct
+import logging, struct
 
 maxOffsets = [16, 32, 1024]
 maxLengths = {16: 513, 32: 4, 1024: 17}
@@ -13,6 +13,41 @@ def create_lzyf(data):
     out.extend(len(data).to_bytes(4, byteorder='big'))
     out.extend(c)
     return out
+
+def checkRunlength(index, src, maxOffset, maxLength):
+    """
+    Returns starting position in source before index from where a max run is detected.
+    """
+    size = len(src)
+    if index>=size:
+        log.warn("Illegal index: {} or size: {} vs {}.".format(index, size, len(src)))
+        return -1
+    startPos = index - 1 # max(0, index-maxOffset)
+    stopPos = max(0, index-maxOffset)
+    runs = {}
+    while(startPos >= stopPos):
+        # log.debug("With: {} {} Runs: {}".format(startPos, index, runs))
+        currRun = 0
+        pos = startPos
+        while src[pos] == src[index+currRun]:
+            currRun += 1
+            pos += 1
+            if currRun == maxLength:
+                log.debug("Found run of length {} == {}. Returning...".format(currRun, maxLength))
+                return (startPos, maxLength) #found best possible run
+            if (pos >= size) or ((index+currRun) >= size):
+                break
+        if (currRun > 0) and (currRun not in runs.keys()):
+            runs[currRun] = startPos
+            # log.debug("Result: {} Runs: {}".format(currRun, runs))
+        startPos -= 1
+
+    if not runs:
+        log.debug("No suitable runs found.")
+        return (-1, 0)
+    else:
+        # Return the index from where the longest run was found
+        return (runs[max(runs.keys())], max(runs.keys()))
 
 def compress(src):
     src_size = len(src)
@@ -30,15 +65,15 @@ def compress(src):
     rl += 1
 
     while src_pos < src_size:
-        pos1, len1 = yay0.checkRunlength(src_pos, src_size, src, maxOffsets[0], maxLengths[maxOffsets[0]])
-        pos2, len2 = yay0.checkRunlength(src_pos, src_size, src, maxOffsets[2], maxLengths[maxOffsets[2]])
+        pos1, len1 = checkRunlength(src_pos, src, maxOffsets[0], maxLengths[maxOffsets[0]])
+        pos2, len2 = checkRunlength(src_pos, src, maxOffsets[2], maxLengths[maxOffsets[2]])
         if src_pos+1 < src_size:
-            pos3, len3 = yay0.checkRunlength(src_pos+1, src_size, src, maxOffsets[0], maxLengths[maxOffsets[0]])
-            pos4, len4 = yay0.checkRunlength(src_pos+1, src_size, src, maxOffsets[2], maxLengths[maxOffsets[2]])
+            pos3, len3 = checkRunlength(src_pos+1, src, maxOffsets[0], maxLengths[maxOffsets[0]])
+            pos4, len4 = checkRunlength(src_pos+1, src, maxOffsets[2], maxLengths[maxOffsets[2]])
         else:
             pos3, len3, pos4, len4 = (-1, 0, -1, 0)
         # TODO: Try max(len3,len4) > (1+max(len1, len2))
-        if (len1 < 2 and len2 < 2) or (max(len3, len4) > max(len1, len2)):
+        if (len1 < 2 and len2 < 2) or (max(len3, len4) > (1+max(len1, len2))):
             # No or sub-optimal repeat pattern, add to or create copy run
             buf.append(src[src_pos])
             rl += 1
@@ -62,7 +97,7 @@ def compress(src):
                 buf = bytearray()
                 rl = 0
             # TODO: Try len1 > (1+len2)
-            if len1 > len2:
+            if len1 > (1+len2):
                 # encode pos1, len1 using C
                 v = src_pos-pos1-1
                 ctrl_byte = 0x2000 | ((v & 0x0F) << 9) | ((len1-2) & 0x1FF)
@@ -105,7 +140,7 @@ def compress(src):
 
 def analyzeRuns(data):
     for i in range(len(data)):
-        p, l = yay0.checkRunlength(i, len(data), data, 1024, 513)
+        p, l = checkRunlength(i, data, 1024, 513)
         if l>1:
             log.info("{}: Found run of {} at {}".format(i, l, p))
             # i += l
