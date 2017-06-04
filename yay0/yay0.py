@@ -98,7 +98,7 @@ def checkRunlength(index, size, src, maxOffset, maxLength):
             pos += 1
             if currRun == maxLength:
                 log.debug("Found run of length {} == {}. Returning...".format(currRun, maxLength))
-                return (startPos, maxLength); #found best possible run
+                return (startPos, maxLength) #found best possible run
             if (pos >= size) or ((index+currRun) >= size):
                 break
         if (currRun > 0) and (currRun not in runs.keys()):
