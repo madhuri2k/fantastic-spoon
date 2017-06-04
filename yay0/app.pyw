@@ -84,7 +84,8 @@ class Application(Frame):
     def compress_lzyf(self):
         file_types = [("Binary File","*.bin"),("All Files","*")]
         f_in = filedialog.askopenfile(master=self, mode="rb",title="Open File",filetypes=file_types)
-        self.textLabel['text'] = "Compressing... please wait!"
+        self.textLabel.configure(text="Compressing... please wait!")
+        self.update()
         if f_in:
             out = lzyf.create_lzyf(f_in.read())
             file_types = [("LZYF File","*.lzyf"),("Binary File","*.bin"),("All Files","*")]
