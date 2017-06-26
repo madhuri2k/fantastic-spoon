@@ -14,9 +14,33 @@ def create_lzyf(data):
     out.extend(c)
     return out
 
-def checkRunlength(index, src, maxOffset, maxLength):
+def crl(index, src, maxOffset, maxLength):
     """
-    Returns starting position in source before index from where a max run is detected.
+    Returns starting position in source before index from where the max runlength is detected.
+    """
+    src_size = len(src)
+    if index > src_size:
+        return (-1, 0)
+    if (index+maxLength) > src_size:
+        maxLength = src_size - index
+    startPos = max(0, index-maxOffset)
+    endPos = index+maxLength-1
+    l = maxLength
+    # log.info("Looking from {} - {} ({}, {}) for upto {} bytes match at {}".format(startPos, endPos, index, maxOffset, maxLength, index))
+    # log.info("String to be matched: {}".format(src[index:index+maxLength]))
+    # log.info("Source to be searchd: {}".format(src[startPos:endPos]))
+    while l>1:
+        # log.info("At l {}".format(l))
+        if src[index:index+l] in src[startPos:index+l-1]:
+            p = src.rfind(src[index:index+l], startPos, index+l-1)
+            # log.info("Match at {} in range {} {}".format(p, startPos, index+l-1))
+            return (p,l)
+        l -= 1
+    return (-1, 0)
+
+def ocrl(index, src, maxOffset, maxLength):
+    """
+    Returns starting position in source before index from where the max runlength is detected.
     """
     size = len(src)
     if index>=size:
@@ -48,6 +72,10 @@ def checkRunlength(index, src, maxOffset, maxLength):
     else:
         # Return the index from where the longest run was found
         return (runs[max(runs.keys())], max(runs.keys()))
+
+crl_func = ocrl
+def checkRunlength(index, src, maxOffset, maxLength):
+    return crl_func(index, src, maxOffset, maxLength)
 
 def compress(src):
     src_size = len(src)
