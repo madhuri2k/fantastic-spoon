@@ -126,7 +126,7 @@ def compress(src):
     buf.append(src[src_pos])
     src_pos += 1
     rl += 1
-
+    # print("Under Test!")
     while src_pos < src_size:
         pos0, len0 = checkRunlength(src_pos, src, maxOffsets[0], maxLengths[maxOffsets[0]])
         pos1, len1 = checkRunlength(src_pos, src, maxOffsets[1], maxLengths[maxOffsets[1]])
@@ -135,14 +135,18 @@ def compress(src):
             pos3, len3 = checkRunlength(src_pos+1, src, maxOffsets[0], maxLengths[maxOffsets[0]])
             pos4, len4 = checkRunlength(src_pos+1, src, maxOffsets[1], maxLengths[maxOffsets[1]])
             pos5, len5 = checkRunlength(src_pos+1, src, maxOffsets[2], maxLengths[maxOffsets[2]])
-            if src_pos+2 < src_size:
-                pos6, len6 = checkRunlength(src_pos+2, src, maxOffsets[0], maxLengths[maxOffsets[0]])
-                pos7, len7 = checkRunlength(src_pos+2, src, maxOffsets[1], maxLengths[maxOffsets[1]])
-                pos8, len8 = checkRunlength(src_pos+2, src, maxOffsets[2], maxLengths[maxOffsets[2]])
+            # if src_pos+2 < src_size:
+            #     pos6, len6 = checkRunlength(src_pos+2, src, maxOffsets[0], maxLengths[maxOffsets[0]])
+            #     pos7, len7 = checkRunlength(src_pos+2, src, maxOffsets[1], maxLengths[maxOffsets[1]])
+            #     pos8, len8 = checkRunlength(src_pos+2, src, maxOffsets[2], maxLengths[maxOffsets[2]])
+            # else:
+            #     pos6, len6, pos7, len7, pos8, len8 = (-1, 0, -1, 0, -1, 0)
         else:
             pos3, len3, pos4, len4, pos5, len5, pos6, len6, pos7, len7, pos8, len8 = (-1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0)
         # if (max(len0, len1+1, len2) >= 2) and ((max(len0, len1+1, len2)+2) >= max(len3, len4+1, len5, len6-2, len7-1, len8-2)):
-        if ((rl == 0) and (len1 > 0)) or ((max(len0, len2) >= 2) and ((max(len0, len2)+2) >= max(len3, len5, len6-2, len8-2))):
+        # if ((max(len0, len2) >= 2) and ((max(len0, len2)+2) >= max(len3, len5, len6-2, len8-2))):
+        # if ((rl == 0) and (len1 > 0)) or ((max(len0, len2) >= 2) and ((max(len0, len2)+2) >= max(len3, len5, len6-2, len8-2))):
+        if ((rl == 0) and (len1 > 0)) or ((max(len0, len2) >= 2) and ((max(len0, len2)+2) >= max(len3, len5))):
             # output existing copy run, if any
             if rl != 0:
                 log.info("Copy: C={}, dec[{}:{}] is enc[{}:{}]. Check rl {} vs {}, enc {} vs {}".format(
