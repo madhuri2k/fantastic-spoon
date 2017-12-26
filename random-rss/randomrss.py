@@ -25,7 +25,7 @@ for it in selec:
 
 feed = rfeed.Feed(
     title = "Sample RSS Feed",
-    link = "https://github.com/madhuri2k/fantastic-spoon",
+    link = "https://github.com/madhuri2k/fantastic-spoon/random-rss",
     description = "A Random selection of items",
     language = "en-US",
     items = content_list)
