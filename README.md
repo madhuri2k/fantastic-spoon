@@ -1,6 +1,6 @@
 # fantastic-spoon
 
-Everything Pythonic
+Everything Pythonic!
 
 This repository has some stuff that I have developed over time to learn python as well as implement &
 fine-tune some algorithms. The code and data here are more a hotch-potch collection of experiments
