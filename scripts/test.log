@@ -1,0 +1,5 @@
+test_logger.py: This is a debug message
+test_logger.py: For your info
+test_logger.py: This is a warning message
+test_logger.py: This is an error message
+test_logger.py: This is a critical message
